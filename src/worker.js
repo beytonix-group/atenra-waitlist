@@ -1,4 +1,4 @@
-import html from "../dist/index.html?raw";
+import { html } from "./worker-embed.js";
 
 function formatEmailBody(data) {
   return `New waitlist submission:\n\nName: ${data.name || ''}\nBusiness: ${data.businessName || ''}\nEmail: ${data.email || ''}\nPhone: ${data.phone || ''}\nUser Type: ${data.userType || ''}\n\nFull payload:\n${JSON.stringify(data, null, 2)}`;
