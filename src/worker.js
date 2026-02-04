@@ -1,4 +1,4 @@
-import { html } from "./worker-embed.js";
+import { html, assets } from "./worker-embed.js";
 
 function formatEmailBody(data) {
   return `New waitlist submission:\n\nName: ${data.name || ''}\nBusiness: ${data.businessName || ''}\nEmail: ${data.email || ''}\nPhone: ${data.phone || ''}\nUser Type: ${data.userType || ''}\n\nFull payload:\n${JSON.stringify(data, null, 2)}`;
@@ -45,8 +45,23 @@ export default {
       return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // Serve the built SPA index for other GET requests (simple static serving)
+    // Serve assets from the embedded assets map
     if (request.method === 'GET') {
+      const pathname = url.pathname;
+      // Serve blobbed assets (e.g., /assets/...)
+      if (assets && assets[pathname]) {
+        const entry = assets[pathname];
+        const bytes = Uint8Array.from(atob(entry.base64), c => c.charCodeAt(0));
+        return new Response(bytes, {
+          status: 200,
+          headers: {
+            'content-type': entry.type,
+            'cache-control': 'public, max-age=31536000, immutable'
+          }
+        });
+      }
+
+      // Fallback to index.html for SPA routes
       return new Response(html, { headers: { 'content-type': 'text/html;charset=UTF-8' } });
     }
 
