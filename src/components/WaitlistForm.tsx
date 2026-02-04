@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, Building2, User, Mail, Phone, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Building2, User, Mail, Phone } from "lucide-react";
 
 type UserType = "client" | "business";
 
@@ -12,6 +13,7 @@ interface WaitlistFormProps {
 }
 
 export const WaitlistForm = ({ userType }: WaitlistFormProps) => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
@@ -20,30 +22,12 @@ export const WaitlistForm = ({ userType }: WaitlistFormProps) => {
     phone: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
-  };
-
-  const openMailClientFallback = () => {
-    const subject = encodeURIComponent(
-      `Atenra Waitlist - ${userType === "business" ? "Business Partner" : "Client"}`
-    );
-    const bodyContent = [
-      `New Waitlist Signup`,
-      ``,
-      `Type: ${userType === "business" ? "Business Owner" : "Client"}`,
-      `Name: ${formData.name}`,
-      ...(userType === "business" ? [`Business Name: ${formData.businessName}`] : []),
-      `Email: ${formData.email}`,
-      `Phone: ${formData.phone || "Not provided"}`,
-    ].join("\n");
-    const body = encodeURIComponent(bodyContent);
-    window.location.href = `mailto:contact@atenra.com?subject=${subject}&body=${body}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,8 +55,8 @@ export const WaitlistForm = ({ userType }: WaitlistFormProps) => {
       console.log('[Form] Response status:', res.status, res.ok);
 
       if (res.ok) {
-        setIsSubmitted(true);
-        toast({ title: "You're on the list!", description: "We'll notify you when Atenra launches." });
+        navigate("/form-success");
+        toast({ title: "Thank you!", description: "You've been added to our waitlist." });
       } else {
         const errorData = await res.json().catch(() => ({}));
         console.error('[Form] Server error:', res.status, errorData);
@@ -93,29 +77,6 @@ export const WaitlistForm = ({ userType }: WaitlistFormProps) => {
 
     setIsSubmitting(false);
   };
-
-  if (isSubmitted) {
-    return (
-      <div className="text-center py-8 sm:py-12 animate-fade-in">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4 sm:mb-6">
-          <CheckCircle2 className="w-8 h-8 text-primary" />
-        </div>
-        <h3 className="text-xl sm:text-2xl font-semibold mb-2">You're on the list!</h3>
-        <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
-          We'll reach out to you when Atenra is ready for launch.
-        </p>
-        <Button
-          variant="outline"
-          onClick={() => {
-            setIsSubmitted(false);
-            setFormData({ name: "", businessName: "", email: "", phone: "" });
-          }}
-        >
-          Sign up another
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
@@ -203,16 +164,6 @@ export const WaitlistForm = ({ userType }: WaitlistFormProps) => {
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </span>
         )}
-      </Button>
-
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full h-10 sm:h-12 text-sm sm:text-base"
-        onClick={openMailClientFallback}
-      >
-        <Mail className="w-4 h-4 mr-2" />
-        Email directly
       </Button>
     </form>
   );
