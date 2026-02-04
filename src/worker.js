@@ -7,17 +7,21 @@ function formatEmailBody(data) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    console.log('[Worker]', request.method, url.pathname);
 
     if (request.method === 'POST' && url.pathname === '/api/waitlist') {
       let data;
       try {
         data = await request.json();
+        console.log('[Worker] POST /api/waitlist', JSON.stringify(data));
       } catch (e) {
+        console.error('[Worker] JSON parse error:', e);
         return new Response('Invalid JSON', { status: 400 });
       }
 
       const RESEND_API_KEY = env.RESEND_API_KEY;
       if (!RESEND_API_KEY) {
+        console.error('[Worker] Missing RESEND_API_KEY');
         return new Response(JSON.stringify({ ok: false, error: 'Missing RESEND_API_KEY' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
       }
 
@@ -28,6 +32,7 @@ export default {
         text: formatEmailBody(data),
       };
 
+      console.log('[Worker] Sending email via Resend...');
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -37,9 +42,11 @@ export default {
         body: JSON.stringify(body),
       });
 
+      const resBody = await res.text().catch(() => '');
+      console.log('[Worker] Resend response:', res.status, resBody);
+
       if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        return new Response(JSON.stringify({ ok: false, status: res.status, body: text }), { status: 502, headers: { 'Content-Type': 'application/json' } });
+        return new Response(JSON.stringify({ ok: false, status: res.status, body: resBody }), { status: 502, headers: { 'Content-Type': 'application/json' } });
       }
 
       return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
@@ -62,7 +69,13 @@ export default {
       }
 
       // Fallback to index.html for SPA routes
-      return new Response(html, { headers: { 'content-type': 'text/html;charset=UTF-8' } });
+      return new Response(html, { 
+        status: 200,
+        headers: { 
+          'content-type': 'text/html;charset=UTF-8',
+          'cache-control': 'no-cache, no-store, must-revalidate'
+        } 
+      });
     }
 
     return new Response('Not found', { status: 404 });
