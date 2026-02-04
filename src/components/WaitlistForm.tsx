@@ -62,11 +62,13 @@ export const WaitlistForm = ({ userType }: WaitlistFormProps) => {
 
     // Try to POST to a serverless endpoint (Cloudflare Worker) first.
     try {
+      console.log('[Form] Submitting to /api/waitlist', { userType, ...formData });
       const res = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userType, ...formData }),
       });
+      console.log('[Form] Response status:', res.status, res.ok);
 
       if (res.ok) {
         setIsSubmitted(true);
@@ -78,6 +80,7 @@ export const WaitlistForm = ({ userType }: WaitlistFormProps) => {
       }
     } catch (err) {
       // Network error -> fallback to mailto
+      console.error('[Form] Fetch error:', err);
       openMailClientFallback();
       toast({ title: "Opened email client", description: "Please send the pre-filled email to contact@atenra.com." });
     }

@@ -9,6 +9,18 @@ export default {
     const url = new URL(request.url);
     console.log('[Worker]', request.method, url.pathname);
 
+    // Handle CORS preflight
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
+      });
+    }
+
     if (request.method === 'POST' && url.pathname === '/api/waitlist') {
       let data;
       try {
@@ -49,7 +61,7 @@ export default {
         return new Response(JSON.stringify({ ok: false, status: res.status, body: resBody }), { status: 502, headers: { 'Content-Type': 'application/json' } });
       }
 
-      return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
     }
 
     // Serve assets from the embedded assets map
