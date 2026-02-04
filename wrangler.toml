@@ -1,0 +1,12 @@
+name = "atenra-waitlist"
+type = "javascript"
+account_id = "aced7fa820f99073b64763a141e1015a"
+workers_dev = true
+main = "src/worker.js"
+
+[build]
+command = "bun run build"
+cwd = "./"
+
+[build.upload]
+format = "service-worker"
