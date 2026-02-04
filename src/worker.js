@@ -1,7 +1,29 @@
 import { html, assets } from "./worker-embed.js";
 
 function formatEmailBody(data) {
-  return `New waitlist submission:\n\nName: ${data.name || ''}\nBusiness: ${data.businessName || ''}\nEmail: ${data.email || ''}\nPhone: ${data.phone || ''}\nUser Type: ${data.userType || ''}\n\nFull payload:\n${JSON.stringify(data, null, 2)}`;
+  // CSV format: header row with field names, data row with values
+  const headers = ['Name', 'Business Name', 'Email', 'Phone'];
+  const values = [
+    data.name || '',
+    data.businessName || '',
+    data.email || '',
+    data.phone || ''
+  ];
+  
+  // Escape CSV values (quote if contains comma, newline, or quote)
+  const escapeCsv = (val) => {
+    if (!val) return '';
+    const str = String(val);
+    if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+  
+  const headerRow = headers.join(',');
+  const dataRow = values.map(escapeCsv).join(',');
+  
+  return `${headerRow}\n${dataRow}`;
 }
 
 export default {
@@ -40,7 +62,7 @@ export default {
       const body = {
         from: 'Atenra <no-reply@atenra.com>',
         to: ['contact@atenra.com'],
-        subject: `Atenra waitlist: ${data.name || data.email || 'new signup'}`,
+        subject: `Atenra Waitlist - ${data.userType === 'business' ? 'Business' : 'Client'}`,
         text: formatEmailBody(data),
       };
 
