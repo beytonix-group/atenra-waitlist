@@ -5,8 +5,8 @@ workers_dev = true
 main = "src/worker.js"
 
 [build]
-command = "bun run build"
+command = "npm run build"
 cwd = "./"
 
 [build.upload]
-format = "service-worker"
+format = "modules"
