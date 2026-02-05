@@ -7,6 +7,17 @@ const FormSuccess = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+
+
+        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17931350697"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'AW-17931350697');
+        </script>
+
       <section className="flex items-center justify-center py-20 sm:py-32 px-4">
         <div className="text-center max-w-md animate-fade-in">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-6 sm:mb-8">

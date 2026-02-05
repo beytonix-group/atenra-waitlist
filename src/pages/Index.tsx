@@ -28,7 +28,14 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17931350697"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
 
+        gtag('config', 'AW-17931350697');
+      </script>
 
       {/* Hero Section with Toggle + Form */}
       <section className="relative pt-20 sm:pt-32 pb-8 sm:pb-12 px-4 sm:px-8 overflow-hidden">
