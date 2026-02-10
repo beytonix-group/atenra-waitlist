@@ -16,6 +16,7 @@ const Index = () => {
     "Hi Team Atenra ,\n\nI'm interested in joining the waitlist for Atenra's pre-launch.\n\nName:\nBusiness Name (if applicable):\nPhone:\n\ I would appreciate if you would add me to your list!\n\nRegards"
   );
 
+  
   const industries = [
     { icon: Home, name: "Home & Maintenance", services: "Roofing, Windows, Plumbing, Electrical, Carpentry, Landscaping, Renovations" },
     { icon: Truck, name: "Transport", services: "Rideshare, Food Deliver, Freight, Vehichle Transport" },
