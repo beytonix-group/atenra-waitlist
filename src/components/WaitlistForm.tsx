@@ -22,12 +22,17 @@ export const WaitlistForm = ({ userType }: WaitlistFormProps) => {
     phone: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
+  };
+
+  const handleConsent = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConsent(e.target.checked);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,21 +47,30 @@ export const WaitlistForm = ({ userType }: WaitlistFormProps) => {
       return;
     }
 
+    if (!consent) {
+      toast({
+        title: "Consent required",
+        description: "Please agree to receive waitlist communications.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     // Try to POST to a serverless endpoint (Cloudflare Worker) first.
     try {
-      console.log('[Form] Submitting to /api/waitlist', { userType, ...formData });
+      console.log('[Form] Submitting to /api/waitlist', { userType, ...formData, consent });
       const res = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userType, ...formData }),
+        body: JSON.stringify({ userType, ...formData, consent, purpose: 'waitlist' }),
       });
       console.log('[Form] Response status:', res.status, res.ok);
 
       if (res.ok) {
         navigate("/form-success");
-        toast({ title: "Thank you!", description: "You've been added to our waitlist." });
+        toast({ title: "Please confirm your email", description: "We sent a confirmation email — check your inbox and click the link to complete signup." });
       } else {
         const errorData = await res.json().catch(() => ({}));
         console.error('[Form] Server error:', res.status, errorData);
@@ -146,6 +160,25 @@ export const WaitlistForm = ({ userType }: WaitlistFormProps) => {
             className="h-10 sm:h-12 text-sm sm:text-base"
           />
         </div>
+      </div>
+
+      <div id="purpose-desc" className="text-sm text-muted-foreground">
+        By joining the waitlist you agree to receive waitlist updates and early access information. We will only use your email for this purpose. See our <a href="/privacy" className="underline">Privacy Policy</a> for details.
+      </div>
+
+      <div className="flex items-start gap-2">
+        <input
+          id="consent"
+          name="consent"
+          aria-describedby="purpose-desc"
+          type="checkbox"
+          checked={consent}
+          onChange={handleConsent}
+          className="mt-1"
+        />
+        <label htmlFor="consent" className="text-sm">
+          I agree to receive waitlist communications (required)
+        </label>
       </div>
 
       <Button

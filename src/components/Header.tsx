@@ -22,6 +22,7 @@ export const Header = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <a href="/privacy" className="text-sm text-muted-foreground hover:underline mr-2">Privacy Policy</a>
           <ThemeToggle />
         </div>
       </div>
